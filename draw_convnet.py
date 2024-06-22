@@ -222,7 +222,7 @@ if __name__ == '__main__':
         label(top_left_list[ind], text_list[ind] + '\n{}'.format(
             num_list[ind]))
 
-    text_list = ['Flatten\n', 'Fully\nconnected', 'Fully\nconnected'] # Text in between each layer
+    text_list = ['Flatten\n', 'Fully\nconnected', 'Fully\nconnected'] # Text in between each layer. Must have same size as size_list
 
     for ind in range(len(size_list)):
         label(top_left_list[ind], text_list[ind], xy_off=[-10, -65]) # xy_off: displacement of layer description. If [0,0], text position equals of top text
