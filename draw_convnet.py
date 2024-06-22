@@ -38,15 +38,19 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 from matplotlib.patches import Circle
 
-NumDots = 4
-NumConvMax = 8
-NumFcMax = 20
-White = 1.
-Light = 0.7
-Medium = 0.5
-Dark = 0.3
-Darker = 0.15
-Black = 0.
+NumConvMax = 8 # int: Number of conv. filters (feature maps) shown in each conv. layer
+NumFcMax = 20 # int: Number of fully connected neurons show in each f.c. layer
+NumDots = 4 # int: If flag_omit = True, number of filters (feature maps)/neurons omitted in each layer
+
+# Colors to be used in each layer.
+# For grayscale use float in [0.,1.]
+# For RGB, use 3-tuple of floats in [0.,1.] like (0.1, 0.2, 0.3) 
+White = 1. # Unused variable
+Light = 0.7 # Color of ligther conv. filter (feature maps)/neuron
+Medium = 0.5 # Color of darker conv. filter (feature maps)/neuron 
+Dark = 0.3 # Color of kernel
+Darker = 0.15 # Color of lines in kernel mapping
+Black = 0. # Color of filters (feature maps)/neurons contour
 
 
 def add_layer(patches, colors, size=(24, 24), num=5,
@@ -109,15 +113,11 @@ def add_mapping(patches, colors, start_ratio, end_ratio, patch_size, ind_bgn,
                     - start_ratio[1] * (size_list[ind_bgn][0] - patch_size[0])]
                    )
 
-
-
-
     end_loc = top_left_list[ind_bgn + 1] \
         + (num_show_list[ind_bgn + 1] - 1) * np.array(
             loc_diff_list[ind_bgn + 1]) \
         + np.array([end_ratio[0] * size_list[ind_bgn + 1][1],
                     - end_ratio[1] * size_list[ind_bgn + 1][0]])
-
 
     patches.append(Rectangle(start_loc, patch_size[1], -patch_size[0]))
     colors.append(Dark)
@@ -135,7 +135,6 @@ def add_mapping(patches, colors, start_ratio, end_ratio, patch_size, ind_bgn,
     colors.append(Darker)
 
 
-
 def label(xy, text, xy_off=[0, 4]):
     plt.text(xy[0] + xy_off[0], xy[1] + xy_off[1], text,
              family='sans-serif', size=8)
@@ -143,23 +142,23 @@ def label(xy, text, xy_off=[0, 4]):
 
 if __name__ == '__main__':
 
-    fc_unit_size = 2
-    layer_width = 40
-    flag_omit = True
+    fc_unit_size = 2 #int : Neuron size
+    layer_width = 40 # int: Size of separation between each layer
+    flag_omit = True # bool : Omit or not in between filters (feature maps)/neurons. If False, NumDots = 0. 
 
+    # Don't edit those
     patches = []
     colors = []
 
     fig, ax = plt.subplots()
 
-
     ############################
     # conv layers
-    size_list = [(32, 32), (18, 18), (10, 10), (6, 6), (4, 4)]
-    num_list = [3, 32, 32, 48, 48]
-    x_diff_list = [0, layer_width, layer_width, layer_width, layer_width]
-    text_list = ['Inputs'] + ['Feature\nmaps'] * (len(size_list) - 1)
-    loc_diff_list = [[3, -3]] * len(size_list)
+    size_list = [(32, 32), (18, 18), (10, 10), (6, 6), (4, 4)] # List of images size. Must have same size as num_list
+    num_list = [3, 32, 32, 48, 48] # List with number of feature maps per layer. Must have same size as size_list
+    x_diff_list = [0, layer_width, layer_width, layer_width, layer_width] # Must have same size as size_list and num_list
+    text_list = ['Inputs'] + ['Feature\nmaps'] * (len(size_list) - 1) # Text on top of each layer
+    loc_diff_list = [[3, -3]] * len(size_list) # Amount of x and y displacement between each layer
 
     num_show_list = list(map(min, num_list, [NumConvMax] * len(num_list)))
     top_left_list = np.c_[np.cumsum(x_diff_list), np.zeros(len(x_diff_list))]
@@ -181,11 +180,11 @@ if __name__ == '__main__':
 
     ############################
     # in between layers
-    start_ratio_list = [[0.4, 0.5], [0.4, 0.8], [0.4, 0.5], [0.4, 0.8]]
-    end_ratio_list = [[0.4, 0.5], [0.4, 0.8], [0.4, 0.5], [0.4, 0.8]]
-    patch_size_list = [(5, 5), (2, 2), (5, 5), (2, 2)]
+    start_ratio_list = [[0.4, 0.5], [0.4, 0.8], [0.4, 0.5], [0.4, 0.8]] # x, y coordinates of kernels start position. Given in fraction of filter size. Must have same size as end_ratio_list
+    end_ratio_list = [[0.4, 0.5], [0.4, 0.8], [0.4, 0.5], [0.4, 0.8]] # x, y coordinates of kernels mapping into next layer. Given in fraction of filter size. Must have same size as start_ratio_list
+    patch_size_list = [(5, 5), (2, 2), (5, 5), (2, 2)] # List of kernels size. Must have same size as start_ratio_list and end_ratio_list
     ind_bgn_list = range(len(patch_size_list))
-    text_list = ['Convolution', 'Max-pooling', 'Convolution', 'Max-pooling']
+    text_list = ['Convolution', 'Max-pooling', 'Convolution', 'Max-pooling'] # Text in between layers with text of what each layer is doing
 
     for ind in range(len(patch_size_list)):
         add_mapping(
@@ -193,19 +192,19 @@ if __name__ == '__main__':
             patch_size_list[ind], ind,
             top_left_list, loc_diff_list, num_show_list, size_list)
         label(top_left_list[ind], text_list[ind] + '\n{}x{} kernel'.format(
-            patch_size_list[ind][0], patch_size_list[ind][1]), xy_off=[26, -65]
+            patch_size_list[ind][0], patch_size_list[ind][1]), xy_off=[26, -65] # Amount of x and y displacement of label text of each layer. If [0,0] text position equals layer description text position
         )
 
 
     ############################
     # fully connected layers
-    size_list = [(fc_unit_size, fc_unit_size)] * 3
-    num_list = [768, 500, 2]
+    size_list = [(fc_unit_size, fc_unit_size)] * 3 # Specify number of layers. Must equal num_list and x_diff_list size
+    num_list = [768, 500, 2] # Number of neurons in each fully connected layer. Must have same size as size_list
     num_show_list = list(map(min, num_list, [NumFcMax] * len(num_list)))
-    x_diff_list = [sum(x_diff_list) + layer_width, layer_width, layer_width]
+    x_diff_list = [sum(x_diff_list) + layer_width, layer_width, layer_width, layer_width] # Must have same size as size_list and num_list
     top_left_list = np.c_[np.cumsum(x_diff_list), np.zeros(len(x_diff_list))]
     loc_diff_list = [[fc_unit_size, -fc_unit_size]] * len(top_left_list)
-    text_list = ['Hidden\nunits'] * (len(size_list) - 1) + ['Outputs']
+    text_list = ['Hidden\nunits'] * (len(size_list) - 1) + ['Outputs'] # Text on top of each layer
 
     for ind in range(len(size_list)):
         if flag_omit:
@@ -223,27 +222,31 @@ if __name__ == '__main__':
         label(top_left_list[ind], text_list[ind] + '\n{}'.format(
             num_list[ind]))
 
-    text_list = ['Flatten\n', 'Fully\nconnected', 'Fully\nconnected']
+    text_list = ['Flatten\n', 'Fully\nconnected', 'Fully\nconnected'] # Text in between each layer
 
     for ind in range(len(size_list)):
-        label(top_left_list[ind], text_list[ind], xy_off=[-10, -65])
+        label(top_left_list[ind], text_list[ind], xy_off=[-10, -65]) # xy_off: displacement of layer description. If [0,0], text position equals of top text
 
     ############################
     for patch, color in zip(patches, colors):
         patch.set_color(color * np.ones(3))
         if isinstance(patch, Line2D):
+            patch.set_linewidth(1.) # Set linewidth of lines that goes from kernel into next layer
             ax.add_line(patch)
         else:
             patch.set_edgecolor(Black * np.ones(3))
+            patch.set_linewidth(1.) # Set linewidth of contour lines
             ax.add_patch(patch)
 
     plt.tight_layout()
     plt.axis('equal')
     plt.axis('off')
     plt.show()
-    fig.set_size_inches(8, 2.5)
+
+    # Not working. Commented instead
+#    fig.set_size_inches(8, 2.5)
 
     fig_dir = './'
     fig_ext = '.png'
-    fig.savefig(os.path.join(fig_dir, 'convnet_fig' + fig_ext),
+    fig.savefig(os.path.join(fig_dir, 'convnet_fig' + fig_ext), # Edit 'convnet_fig to edit figure name
                 bbox_inches='tight', pad_inches=0)
